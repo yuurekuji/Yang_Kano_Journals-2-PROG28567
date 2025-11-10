@@ -14,8 +14,11 @@ public class Collider2dCheck : MonoBehaviour
         
     }
 
-    public void RigidBody2DIsTouching(Collider2D other)
+    public void RigidBody2DIsTouching(Collider2D Collider)
     {
-
+        if(Collider.gameObject.tag == "Enemy")
+        {
+            //damage 
+        }
     }
 }
