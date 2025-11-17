@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
-
+    public Animator animator;
     public Rigidbody2D rb2D;
     public float moveSpeed;
     private Vector2 moveDir;
@@ -34,8 +34,6 @@ public class PlayerController : MonoBehaviour
         MovementUpdate(playerInput);
 
 
-
-
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -45,7 +43,17 @@ public class PlayerController : MonoBehaviour
 
     public bool IsWalking()
     {
-        return false;
+        if (rb2D.linearVelocity.magnitude > 0.01f)
+        {
+            Debug.Log("walking");
+            return true;
+        }
+        else
+        {
+            Debug.Log("isnotWalking");
+            return false;
+        }
+       
     }
     public bool IsGrounded()
     {
