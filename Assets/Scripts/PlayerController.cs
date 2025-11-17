@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.Build.Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -62,6 +63,15 @@ public class PlayerController : MonoBehaviour
 
     public FacingDirection GetFacingDirection()
     {
-        return FacingDirection.left;
+        moveDir = rb2D.linearVelocity.normalized;
+        if (moveDir.x > 0)
+        {
+            return FacingDirection.right;
+        }
+        else
+        {
+            return FacingDirection.left;
+        }
+        
     }
 }
