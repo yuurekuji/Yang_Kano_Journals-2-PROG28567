@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D rb2D;
     public float moveSpeed;
     private Vector2 moveDir;
+
+    public float jumpForce;
+    public bool isGrounded;
     public enum FacingDirection
     {
         left, right
@@ -34,31 +37,53 @@ public class PlayerController : MonoBehaviour
 
         MovementUpdate(playerInput);
 
+        isGrounded = true;
+
 
     }
 
     private void MovementUpdate(Vector2 playerInput)
     {
         rb2D.linearVelocity = new Vector2(playerInput.x * moveSpeed, playerInput.y * moveSpeed);
+        
     }
 
     public bool IsWalking()
     {
         if (rb2D.linearVelocity.magnitude > 0.01f)
         {
-            Debug.Log("walking");
+            //Debug.Log("walking");
             return true;
         }
         else
         {
-            Debug.Log("isnotWalking");
+            //Debug.Log("isnotWalking");
             return false;
         }
        
     }
+    public void OnCollision2DStay(Collider2D collison)
+    {
+        Debug.Log("sus");
+        if (collison.gameObject.tag == "Ground")
+        {
+            
+            isGrounded = false;
+        }
+    }
     public bool IsGrounded()
     {
-        return true;
+        if(isGrounded == true)
+        {
+
+            return true;
+        }
+        else
+        {
+
+            return false;
+        }
+        
     }
 
     public FacingDirection GetFacingDirection()
