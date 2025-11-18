@@ -37,7 +37,6 @@ public class PlayerController : MonoBehaviour
 
         MovementUpdate(playerInput);
 
-        isGrounded = true;
 
 
     }
@@ -62,26 +61,35 @@ public class PlayerController : MonoBehaviour
         }
        
     }
-    public void OnCollision2DStay(Collider2D collison)
+
+    public void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("sus");
-        if (collison.gameObject.tag == "Ground")
+        
+        if (collision.gameObject.tag == "Ground")
         {
-            
+
             isGrounded = false;
+        }
+    }
+
+    public void OnCollisionExit2D(Collision2D collider)
+    {
+
+        if (collider.gameObject.tag == "Ground")
+        {
+
+            isGrounded = true;
         }
     }
     public bool IsGrounded()
     {
-        if(isGrounded == true)
+        if (isGrounded == true)
         {
-
-            return true;
+            return false;
         }
         else
-        {
-
-            return false;
+        { 
+            return true;
         }
         
     }
