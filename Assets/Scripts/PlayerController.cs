@@ -51,8 +51,38 @@ public class PlayerController : MonoBehaviour
 
         MovementUpdate(playerInput);
 
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping && isGrounded == false)
+        {
+            StartJump();
+        }
 
+        if (isJumping)
+        {
+            jumpTime += Time.deltaTime;
+            ApplyJumpMotion();
+        }
 
+    }
+    void StartJump()
+    {
+        isJumping = true;
+        jumpTime = 0f;
+        jumpStartY = transform.position.y;
+    }
+
+    void ApplyJumpMotion()
+    {
+        float y = 0.5f * gravity * (jumpTime * jumpTime) + initialJumpVelocity * jumpTime + jumpStartY;
+
+        transform.position = new Vector3(transform.position.x, y);
+
+        float velocity = gravity * jumpTime + initialJumpVelocity;
+
+        if (velocity < 0 && y <= jumpStartY)
+        {
+            isJumping = false;
+            transform.position = new Vector3(transform.position.x, jumpStartY);
+        }
     }
 
     private void MovementUpdate(Vector2 playerInput)
