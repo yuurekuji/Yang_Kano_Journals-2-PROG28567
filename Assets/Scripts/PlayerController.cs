@@ -14,6 +14,17 @@ public class PlayerController : MonoBehaviour
 
     public float jumpForce;
     public bool isGrounded;
+
+    [Header("Jump Settings")]
+    public float apexHeight = 3f;      // How high the jump peak is
+    public float apexTime = 0.4f;      // Time to reach the peak
+
+    public float gravity;
+    private float initialJumpVelocity;
+    private float jumpStartY;
+    private float jumpTime;
+    public bool isJumping;
+
     public enum FacingDirection
     {
         left, right
@@ -23,6 +34,9 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
+
+        gravity = -2f * apexHeight / (apexTime * apexTime);
+        initialJumpVelocity = 2f * apexHeight / apexTime;
     }
 
     // Update is called once per frame
@@ -85,10 +99,13 @@ public class PlayerController : MonoBehaviour
     {
         if (isGrounded == true)
         {
+            Debug.Log("urmom");
             return false;
+            
         }
         else
         { 
+
             return true;
         }
         
