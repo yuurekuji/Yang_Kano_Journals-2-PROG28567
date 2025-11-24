@@ -24,7 +24,11 @@ public class PlayerController : MonoBehaviour
     private float jumpStartY;
     private float jumpTime;
     public bool isJumping;
+    public float TerminalSpeed;
 
+    [Header("Coyote Time")]
+    public float coyoteTime = 0.15f;  // Extra time allowed after leaving ground
+    public float coyoteTimer;
     public enum FacingDirection
     {
         left, right
@@ -51,7 +55,7 @@ public class PlayerController : MonoBehaviour
 
         MovementUpdate(playerInput);
 
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping && isGrounded == false)
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping && coyoteTimer <= coyoteTime)
         {
             StartJump();
         }
@@ -72,13 +76,13 @@ public class PlayerController : MonoBehaviour
 
     void ApplyJumpMotion()
     {
-        float y = 0.5f * gravity * (jumpTime * jumpTime) + initialJumpVelocity * jumpTime + jumpStartY;
+        float PlayerY = 0.5f * gravity * (jumpTime * jumpTime) + initialJumpVelocity * jumpTime + jumpStartY;
 
-        transform.position = new Vector3(transform.position.x, y);
+        transform.position = new Vector3(transform.position.x, PlayerY);
 
-        float velocity = gravity * jumpTime + initialJumpVelocity;
+        TerminalSpeed = gravity * jumpTime + initialJumpVelocity;
 
-        if (velocity < 0 && y <= jumpStartY)
+        if (TerminalSpeed < 0 && PlayerY <= jumpStartY)
         {
             isJumping = false;
             transform.position = new Vector3(transform.position.x, jumpStartY);
@@ -113,6 +117,7 @@ public class PlayerController : MonoBehaviour
         {
 
             isGrounded = false;
+            coyoteTimer = 0;
         }
     }
 
@@ -123,6 +128,7 @@ public class PlayerController : MonoBehaviour
         {
 
             isGrounded = true;
+            coyoteTimer = Time.deltaTime;
         }
     }
     public bool IsGrounded()
