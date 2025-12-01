@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveDir;
 
     public float jumpForce;
-    public bool isGrounded;
+    public bool NotGrounded;
 
     [Header("Jump Settings")]
     public float apexHeight = 3f;      // How high the jump peak is
@@ -25,10 +25,18 @@ public class PlayerController : MonoBehaviour
     private float jumpTime;
     public bool isJumping;
     public float TerminalSpeed;
-
+    float PlayerY;
     [Header("Coyote Time")]
     public float coyoteTime = 0.15f;  // Extra time allowed after leaving ground
     public float coyoteTimer;
+
+    [Header("Dash Settings")]
+    public float dashSpeed;
+    public float dashDuration;
+    public float dashCooldown;
+    public bool isDashing;
+    public bool canDash;
+    public bool invincible;
     public enum FacingDirection
     {
         left, right
@@ -41,11 +49,24 @@ public class PlayerController : MonoBehaviour
 
         gravity = -2f * apexHeight / (apexTime * apexTime);
         initialJumpVelocity = 2f * apexHeight / apexTime;
+
+        canDash = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+
+
+        if (isDashing)
+        {
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash == true)
+        {
+            StartCoroutine(dash());
+        }
         //The input from the player needs to be determined and then passed in the to the MovementUpdate which should
         //manage the actual movement of the character.
         Vector2 playerInput = new Vector2();
@@ -66,7 +87,37 @@ public class PlayerController : MonoBehaviour
             ApplyJumpMotion();
         }
 
+        if (NotGrounded == true)
+        {
+            coyoteTimer += Time.deltaTime;
+        }
+
+
     }
+
+    private void FixedUpdate()
+    {
+        // actual physics calculations
+        if (isDashing)
+        {
+            return;
+        }
+    }
+
+    public IEnumerator dash()
+    {
+        canDash = false;
+        isDashing = true;
+        invincible = true;
+        rb2D.linearVelocity = new Vector2(moveDir.x * dashSpeed, transform.position.y);
+        yield return new WaitForSeconds(dashDuration);
+        invincible = false;
+        isDashing = false;
+
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
     void StartJump()
     {
         isJumping = true;
@@ -76,7 +127,7 @@ public class PlayerController : MonoBehaviour
 
     void ApplyJumpMotion()
     {
-        float PlayerY = 0.5f * gravity * (jumpTime * jumpTime) + initialJumpVelocity * jumpTime + jumpStartY;
+        PlayerY = 0.5f * gravity * (jumpTime * jumpTime) + initialJumpVelocity * jumpTime + jumpStartY;
 
         transform.position = new Vector3(transform.position.x, PlayerY);
 
@@ -116,7 +167,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
 
-            isGrounded = false;
+            NotGrounded = false;
             coyoteTimer = 0;
         }
     }
@@ -127,15 +178,16 @@ public class PlayerController : MonoBehaviour
         if (collider.gameObject.tag == "Ground")
         {
 
-            isGrounded = true;
-            coyoteTimer = Time.deltaTime;
+            NotGrounded = true;
+            
         }
     }
     public bool IsGrounded()
     {
-        if (isGrounded == true)
+        if (NotGrounded == true)
         {
             Debug.Log("urmom");
+
             return false;
             
         }
