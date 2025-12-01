@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D rb2D;
     public float moveSpeed;
     private Vector2 moveDir;
-
+    Vector2 playerInput;
     public float jumpForce;
     public bool NotGrounded;
 
@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     public bool isJumping;
     public float TerminalSpeed;
     float PlayerY;
+
+    bool isTouchingWall;
     [Header("Coyote Time")]
     public float coyoteTime = 0.15f;  // Extra time allowed after leaving ground
     public float coyoteTimer;
@@ -37,10 +39,12 @@ public class PlayerController : MonoBehaviour
     public bool isDashing;
     public bool canDash;
     public bool invincible;
+
     public enum FacingDirection
     {
         left, right
     }
+
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +55,7 @@ public class PlayerController : MonoBehaviour
         initialJumpVelocity = 2f * apexHeight / apexTime;
 
         canDash = true;
+        isTouchingWall = false;
     }
 
     // Update is called once per frame
@@ -67,16 +72,19 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(dash());
         }
+
+
+
         //The input from the player needs to be determined and then passed in the to the MovementUpdate which should
         //manage the actual movement of the character.
-        Vector2 playerInput = new Vector2();
+        playerInput = new Vector2();
 
         float moveX = Input.GetAxisRaw("Horizontal");
         playerInput = new Vector2(moveX, 0).normalized;
 
         MovementUpdate(playerInput);
 
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping && coyoteTimer <= coyoteTime)
+        if ((Input.GetKeyDown(KeyCode.Space) && !isJumping && coyoteTimer <= coyoteTime) || Input.GetKeyDown(KeyCode.Space) && isTouchingWall == true )
         {
             StartJump();
         }
@@ -109,7 +117,7 @@ public class PlayerController : MonoBehaviour
         canDash = false;
         isDashing = true;
         invincible = true;
-        rb2D.linearVelocity = new Vector2(moveDir.x * dashSpeed, transform.position.y);
+        rb2D.linearVelocity = new Vector2(playerInput.x * dashSpeed, transform.position.y);
         yield return new WaitForSeconds(dashDuration);
         invincible = false;
         isDashing = false;
@@ -127,16 +135,17 @@ public class PlayerController : MonoBehaviour
 
     void ApplyJumpMotion()
     {
-        PlayerY = 0.5f * gravity * (jumpTime * jumpTime) + initialJumpVelocity * jumpTime + jumpStartY;
 
-        transform.position = new Vector3(transform.position.x, PlayerY);
+        Vector2 vel = rb2D.linearVelocity;
+        vel.y += initialJumpVelocity;     // Apply instant jump impulse
 
-        TerminalSpeed = gravity * jumpTime + initialJumpVelocity;
+        rb2D.linearVelocity = vel;
 
-        if (TerminalSpeed < 0 && PlayerY <= jumpStartY)
+        jumpTime += Time.deltaTime;
+
+        if(jumpTime >= apexTime)
         {
             isJumping = false;
-            transform.position = new Vector3(transform.position.x, jumpStartY);
         }
     }
 
@@ -170,6 +179,11 @@ public class PlayerController : MonoBehaviour
             NotGrounded = false;
             coyoteTimer = 0;
         }
+
+        if(collision.gameObject.tag == "Wall")
+        {
+            isTouchingWall = true;
+        }
     }
 
     public void OnCollisionExit2D(Collision2D collider)
@@ -181,12 +195,25 @@ public class PlayerController : MonoBehaviour
             NotGrounded = true;
             
         }
+
+        if (collider.gameObject.tag == "Wall")
+        {
+            isTouchingWall = false;
+        }
+
     }
     public bool IsGrounded()
     {
         if (NotGrounded == true)
         {
             Debug.Log("urmom");
+            Vector2 vel = rb2D.linearVelocity;
+
+            // --- CONSTANT GRAVITY ---
+            vel.y += gravity * Time.deltaTime * 30;
+
+            rb2D.linearVelocity = vel;
+
 
             return false;
             
