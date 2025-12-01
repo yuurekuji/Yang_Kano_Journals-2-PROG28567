@@ -207,6 +207,8 @@ public class PlayerController : MonoBehaviour
         if (NotGrounded == true)
         {
             Debug.Log("urmom");
+
+
             Vector2 vel = rb2D.linearVelocity;
 
             // --- CONSTANT GRAVITY ---
@@ -214,13 +216,18 @@ public class PlayerController : MonoBehaviour
 
             rb2D.linearVelocity = vel;
 
-
             return false;
             
         }
         else
-        { 
+        {
 
+            Vector2 vel = rb2D.linearVelocity;
+
+            // --- CONSTANT GRAVITY ---
+            vel.y += gravity * Time.deltaTime * 30;
+
+            rb2D.linearVelocity = vel;
             return true;
         }
         
